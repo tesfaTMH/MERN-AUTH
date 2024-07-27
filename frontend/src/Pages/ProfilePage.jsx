@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Form, Button, Row, Col } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import FormComponent from "../components/FormComponent";
 import { toast } from "react-toastify";
 import LoaderComponent from "../components/LoaderComponent";
-import { useRegisterMutation } from "../slices/userApiSlice";
 import { setCredentials } from "../slices/authSlice";
 
-const RegisterPage = () => {
+import { useUpdateUserMutation } from "../slices/userApiSlice";
+
+const ProfilePage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,13 +20,12 @@ const RegisterPage = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  const [register, { isLoading }] = useRegisterMutation();
+  const [updateProfile, { isLoading }] = useUpdateUserMutation();
 
   useEffect(() => {
-    if (userInfo) {
-      navigate("/");
-    }
-  }, [navigate, userInfo]);
+    setName(userInfo.name);
+    setEmail(userInfo.email);
+  }, [userInfo.name, userInfo.email]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -33,17 +33,23 @@ const RegisterPage = () => {
       toast.error("Password do not match");
     } else {
       try {
-        const res = await register({ name, email, password }).unwrap();
-        dispatch(setCredentials({ ...res }));
-        navigate("/");
+        const res = await updateProfile({
+          _id: userInfo._id,
+          name,
+          email,
+          password,
+        }).unwrap();
+        setCredentials({ ...res });
+        toast.success("Profile updated successfully");
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }
     }
   };
+
   return (
     <FormComponent>
-      <h1>Sign Up</h1>
+      <h1>Update Profile</h1>
       <Form onSubmit={submitHandler}>
         <Form.Group className="my-2" controlId="name">
           <Form.Label>Name</Form.Label>
@@ -87,17 +93,11 @@ const RegisterPage = () => {
 
         {isLoading && <LoaderComponent />}
         <Button type="submit" variant="primary" className="mt-3">
-          Sign Up
+          Update
         </Button>
       </Form>
-
-      <Row className="py-3">
-        <Col>
-          Already have an account? <Link to="/login">Sign In</Link>
-        </Col>
-      </Row>
     </FormComponent>
   );
 };
 
-export default RegisterPage;
+export default ProfilePage;

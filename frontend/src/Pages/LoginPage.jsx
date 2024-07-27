@@ -9,6 +9,8 @@ import { setCredentials } from "../slices/authSlice";
 
 import { toast } from "react-toastify";
 
+import LoaderComponent from "../components/LoaderComponent";
+
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,7 +60,7 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
           ></Form.Control>
         </Form.Group>
-
+        {isLoading && <LoaderComponent />}
         <Button
           disabled={isLoading}
           type="submit"
@@ -67,11 +69,12 @@ const LoginPage = () => {
         >
           Sign In
         </Button>
-
-        <Row className="py-3">
-          New Customer? <Link to="/register">Register</Link>
-        </Row>
       </Form>
+      <Row className="py-3">
+        <Col>
+          New Customer? <Link to="/register">Register</Link>
+        </Col>
+      </Row>
     </FormComponent>
   );
 };
